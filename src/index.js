@@ -1,6 +1,6 @@
 import './pages/index.css';
 import {initialCards} from './scripts/cards';
-import {createCard} from './scripts/card';
+import {createCard, deleteCard, likeCard} from './scripts/card';
 import {openModal, closeModal} from './scripts/modal';
 
 const pageContent = document.querySelector('.page__content');
@@ -23,11 +23,21 @@ const formNewPlace = addModal.querySelector('.popup__form');
 const nameNewPlace = formNewPlace.querySelector('.popup__input_type_card-name');
 const linkNewPlace = formNewPlace.querySelector('.popup__input_type_url');
 
-const addCardsToPage = () => {
-  placesList.textContent = '';
-  initialCards.map(card => {
-    return placesList.append(createCard(card, openImageModal));
-  });
+const addCardsToPage = (cards, position) => {
+  if(Array.isArray(cards)) {
+    switch (position) {
+      case 'prepend': 
+        return cards.map(card => {
+          return placesList.prepend(createCard(card, openImageModal, deleteCard, likeCard));
+        });
+      case 'append': 
+        return cards.map(card => {
+          return placesList.append(createCard(card, openImageModal, deleteCard, likeCard));
+        });
+      default:
+        return null;
+    }
+  }
 }
 
 editButton.addEventListener('click', () => {
@@ -39,7 +49,6 @@ editButton.addEventListener('click', () => {
 addButton.addEventListener('click', () => openModal(addModal));
 
 pageContent.addEventListener('click', function(event) {
-  console.log('fffff', event);
   const target = event.target;
   if (target.classList.contains('popup__close') || target.classList.contains('popup')) {
     const popup = target.closest('.popup');
@@ -80,13 +89,11 @@ formElement.addEventListener('submit', handleFormSubmit);
 const handleFormNewPlaceSubmit = (event) => {
   event.preventDefault();
   
-  initialCards.unshift({
+  closeModal(addModal);
+  addCardsToPage([{
     name: nameNewPlace.value,
     link: linkNewPlace.value,
-  });
-
-  closeModal(addModal);
-  addCardsToPage();
+  }], "prepend");
 }
 
 formNewPlace.addEventListener('submit', (event) => {
@@ -94,6 +101,6 @@ formNewPlace.addEventListener('submit', (event) => {
   formNewPlace.reset();
 });
 
-addCardsToPage();
+addCardsToPage(initialCards, 'append');
 
 
