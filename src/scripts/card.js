@@ -19,14 +19,17 @@ export const createCard = (card, openImageModal, deleteCard, likeCard) => {
     const target = event.target;
     if(target.classList.contains('card__image')) {
       openImageModal(card.link, card.name);
+      return;
     }
 
     if(target.classList.contains('card__like-button')) {
       likeCard(likeButton);
+      return;
     }
 
     if(target.classList.contains('card__delete-button')) {
       deleteCard(cardElement);
+      return;
     }
     
   })

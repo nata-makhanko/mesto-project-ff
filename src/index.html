@@ -20,7 +20,7 @@
         <button class="profile__edit-button" type="button"></button>
         <p class="profile__description">Исследователь океана</p>
       </div>
-      <button class="profile__add-button" type="button"></button>
+      <button class="profile__add-button" type="button" aria-label="Кнопка добавления контента на страницу"></button>
     </section>
     <section class="places page__section">
       <ul class="places__list">
@@ -34,7 +34,7 @@
   </footer>
   <div class="popup popup_type_edit popup_is-animated">
     <div class="popup__content">
-      <button type="button" class="popup__close"></button>
+      <button type="button" class="popup__close" aria-label="Кнопка закрытия окна с редактирование информации по пользователю"></button>
       <h3 class="popup__title">Редактировать профиль</h3>
       <form class="popup__form" name="edit-profile">
         <input type="text" name="name" class="popup__input popup__input_type_name" placeholder="Имя" required>
@@ -45,7 +45,7 @@
   </div>
   <div class="popup popup_type_new-card popup_is-animated">
     <div class="popup__content">
-      <button type="button" class="popup__close"></button>
+      <button type="button" class="popup__close" aria-label="Кнопка закрытия окна с добавлением нового места"></button>
       <h3 class="popup__title">Новое место</h3>
       <form class="popup__form" name="new-place">
         <input type="text" name="place-name" class="popup__input popup__input_type_card-name" placeholder="Название" required>
@@ -56,7 +56,7 @@
   </div>
   <div class="popup popup_type_image popup_is-animated">
     <div class="popup__content popup__content_content_image">
-      <button type="button" class="popup__close"></button>
+      <button type="button" class="popup__close" aria-label="Кнопка закрытия окна с изображением"></button>
       <img src="" alt="" class="popup__image">
       <p class="popup__caption"></p>
     </div>
@@ -65,11 +65,11 @@
 <template id="card-template">
   <li class="places__item card">
     <img class="card__image" src="" alt="" />
-    <button type="button" class="card__delete-button"></button>
+    <button type="button" class="card__delete-button" aria-label="Кнопка удаления карточки"></button>
     <div class="card__description">
       <h2 class="card__title">
       </h2>
-      <button type="button" class="card__like-button"></button>
+      <button type="button" class="card__like-button" aria-label="Кнопка для проставления лайка для карточки"></button>
     </div>
   </li>
 </template>

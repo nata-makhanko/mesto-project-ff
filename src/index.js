@@ -13,9 +13,9 @@ const addButton = pageContent.querySelector('.profile__add-button');
 const addModal = pageContent.querySelector('.popup_type_new-card');
 const imgModal = pageContent.querySelector('.popup_type_image');
 
-const formElement = editModal.querySelector('.popup__form');
-const nameInput = formElement.querySelector('.popup__input_type_name');
-const jobInput = formElement.querySelector('.popup__input_type_description');
+const formEditPersonInfo = editModal.querySelector('.popup__form');
+const nameInput = formEditPersonInfo.querySelector('.popup__input_type_name');
+const jobInput = formEditPersonInfo.querySelector('.popup__input_type_description');
 const profileTitle = pageContent.querySelector('.profile__title');
 const profileDescription = pageContent.querySelector('.profile__description');
 
@@ -23,20 +23,14 @@ const formNewPlace = addModal.querySelector('.popup__form');
 const nameNewPlace = formNewPlace.querySelector('.popup__input_type_card-name');
 const linkNewPlace = formNewPlace.querySelector('.popup__input_type_url');
 
-const addCardsToPage = (cards, position) => {
-  if(Array.isArray(cards)) {
-    switch (position) {
-      case 'prepend': 
-        return cards.map(card => {
-          return placesList.prepend(createCard(card, openImageModal, deleteCard, likeCard));
-        });
-      case 'append': 
-        return cards.map(card => {
-          return placesList.append(createCard(card, openImageModal, deleteCard, likeCard));
-        });
-      default:
-        return null;
-    }
+const addCardsToPage = (card, position) => {
+  switch (position) {
+    case 'prepend': 
+      return placesList.prepend(createCard(card, openImageModal, deleteCard, likeCard));
+    case 'append': 
+      return placesList.append(createCard(card, openImageModal, deleteCard, likeCard));
+    default:
+      return null;
   }
 }
 
@@ -48,23 +42,6 @@ editButton.addEventListener('click', () => {
 
 addButton.addEventListener('click', () => openModal(addModal));
 
-pageContent.addEventListener('click', function(event) {
-  const target = event.target;
-  if (target.classList.contains('popup__close') || target.classList.contains('popup')) {
-    const popup = target.closest('.popup');
-    if (popup) {
-      closeModal(popup);
-    }
-  }
-});
-
-pageContent.addEventListener('keydown', (event) => {
-  const popup = pageContent.querySelector('.popup_is-opened');
-  if (popup && event.key === 'Escape') {
-    closeModal(popup);
-  }
-});
-
 const openImageModal = (imgSrc, caption) => {
   const popupImageNode = imgModal.querySelector('.popup__image');
   const popupCaptionNode = imgModal.querySelector('.popup__caption');
@@ -75,7 +52,7 @@ const openImageModal = (imgSrc, caption) => {
 }
 
 
-const handleFormSubmit = (event) => {
+const handleFormEditPersonInfoSubmit = (event) => {
   event.preventDefault();
 
   profileTitle.textContent = nameInput.value;
@@ -84,16 +61,16 @@ const handleFormSubmit = (event) => {
   closeModal(editModal);
 }
 
-formElement.addEventListener('submit', handleFormSubmit);
+formEditPersonInfo.addEventListener('submit', handleFormEditPersonInfoSubmit);
 
 const handleFormNewPlaceSubmit = (event) => {
   event.preventDefault();
   
   closeModal(addModal);
-  addCardsToPage([{
+  addCardsToPage({
     name: nameNewPlace.value,
     link: linkNewPlace.value,
-  }], "prepend");
+  }, "prepend");
 }
 
 formNewPlace.addEventListener('submit', (event) => {
@@ -101,6 +78,8 @@ formNewPlace.addEventListener('submit', (event) => {
   formNewPlace.reset();
 });
 
-addCardsToPage(initialCards, 'append');
+initialCards.map(card => addCardsToPage(card, 'append'));
+
+
 
 
