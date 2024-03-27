@@ -2,175 +2,119 @@ import './pages/index.css';
 import {createCard, toggleLikeCard, deleteCard} from './scripts/card';
 import {openModal, closeModal} from './scripts/modal';
 import {enableValidation, clearValidation} from './scripts/validation';
+import {handleSubmit} from './utils/use-form';
 import * as api from './scripts/api';
-const pageContent = document.querySelector('.page__content');
+import * as constants from './utils/constants';
 
-const placesList = pageContent.querySelector('.places__list');
+function renderCard(item,  method = "prepend") {
+  const callbacks = {
+    openImageModal,
+    deleteCard,
+    likeCard: toggleLikeCard,
+  }
 
-const imgModal = pageContent.querySelector('.popup_type_image');
+  const cardElement = createCard(item, callbacks);
 
-const editProfileButton = pageContent.querySelector('.profile__edit-button');
-const editProfileModal = pageContent.querySelector('.popup_type_edit');
-const formEditProfile = editProfileModal.querySelector('.popup__form');
-const nameInput = formEditProfile.querySelector('.popup__input_type_name');
-const jobInput = formEditProfile.querySelector('.popup__input_type_description');
-
-const addCardButton = pageContent.querySelector('.profile__add-button');
-const addCardModal = pageContent.querySelector('.popup_type_new-card');
-const formCard = addCardModal.querySelector('.popup__form');
-const inputsListNewPlace = formCard.querySelectorAll('.popup__input');
-const nameNewPlace = formCard.querySelector('.popup__input_type_card-name');
-const linkNewPlace = formCard.querySelector('.popup__input_type_url');
-
-const editAvatarButton = pageContent.querySelector('.profile__image');
-const editAvatarModal = pageContent.querySelector('.popup_type_avatar');
-const formEditAvatar = editAvatarModal.querySelector('.popup__form');
-const linkAvatarInput = editAvatarModal.querySelector('.popup__input_type_url_avatar');
-
-const profile = document.querySelector('.profile');
-const profileTitle = profile.querySelector('.profile__title');
-const profileDescription = profile.querySelector('.profile__description');
-const profileAvatar = profile.querySelector('.profile__image');
-
-const validationConfig = {
-  inputSelector: '.popup__input',
-  submitButtonSelector: '.popup__button',
-  inactiveButtonClass: 'popup__button_disabled',
-  inputErrorClass: 'popup__input_type_error',
-  errorClass: 'popup__error_visible'
+  constants.placesList[method](cardElement);
 }
 
 async function fetchData() {
   try {
     const [profileUserData, cardsData] = await Promise.all([api.getProfileUser(), api.getCards()]);
-    profileTitle.textContent = profileUserData.name;
-    profileDescription.textContent = profileUserData.about;
-    profileAvatar.style.backgroundImage = `url(${profileUserData.avatar})`;
-    profile.id = profileUserData._id;
+    constants.profileTitle.textContent = profileUserData.name;
+    constants.profileDescription.textContent = profileUserData.about;
+    constants.profileAvatar.style.backgroundImage = `url(${profileUserData.avatar})`;
+    constants.profile.id = profileUserData._id;
 
-    cardsData.forEach(card => addCardsToPage({card, position: 'append', myId: profile.id}));
+    cardsData.forEach(card => renderCard(card, 'append'));
 
   } catch (error) {
     console.log(`Текст ошибки: "${error.message}"`);
   }
 }
 
-function addCardsToPage ({card, position, myId}) {
-  switch (position) {
-    case 'prepend': 
-      return placesList.prepend(createCard({card, openImageModal, deleteCard, likeCard: toggleLikeCard, myId}));
-    case 'append': 
-      return placesList.append(createCard({card, openImageModal, deleteCard, likeCard: toggleLikeCard, myId}));
-    default:
-      return null;
-  }
-}
-
-editProfileButton.addEventListener('click', () => {
-  nameInput.value = profileTitle.textContent;
-  jobInput.value = profileDescription.textContent;
-  clearValidation(formEditProfile, validationConfig);
-  openModal(editProfileModal);
+constants.editProfileButton.addEventListener('click', () => {
+  constants.nameInput.value = constants.profileTitle.textContent;
+  constants.jobInput.value = constants.profileDescription.textContent;
+  clearValidation(constants.formEditProfile, constants.validationConfig);
+  openModal(constants.editProfileModal);
 });
 
-addCardButton.addEventListener('click', () => {
-  [...inputsListNewPlace].forEach(input => input.value = '');
-  clearValidation(formCard, validationConfig);
-  openModal(addCardModal);
+constants.addCardButton.addEventListener('click', () => {
+  constants.formCard.reset();
+  clearValidation(constants.formCard, constants.validationConfig);
+  openModal(constants.addCardModal);
 });
 
-editAvatarButton.addEventListener('click', () => {
-  clearValidation(formEditAvatar, validationConfig);
-  openModal(editAvatarModal);
+constants.editAvatarButton.addEventListener('click', () => {
+  clearValidation(constants.formEditAvatar, constants.validationConfig);
+  openModal(constants.editAvatarModal);
 })
 
 function openImageModal (imgSrc, caption) {
-  const popupImageNode = imgModal.querySelector('.popup__image');
-  const popupCaptionNode = imgModal.querySelector('.popup__caption');
-  popupImageNode.src = imgSrc;
-  popupImageNode.alt = caption;
-  popupCaptionNode.textContent = caption;
-  openModal(imgModal);
+  constants.popupImage.src = imgSrc;
+  constants.popupImage.alt = caption;
+  constants.popupCaption.textContent = caption;
+  openModal(constants.imgModal);
 }
 
-async function handleFormEditProfileSubmit(event) {
-  event.preventDefault();
-
-  try {
-    const editProfileUser = await api.editProfileUser({
-      name: nameInput.value,
-      about: jobInput.value,
-    });
-
-    profileTitle.textContent = editProfileUser.name;
-    profileDescription.textContent = editProfileUser.about;
-    profileAvatar.style.backgroundImage = `url(${editProfileUser.avatar})`;
-
-  } catch (error) {
-    console.log(`Текст ошибки: "${error.message}"`);
+function handleFormEditProfileSubmit(event) {
+  function makeRequest() {
+    return api.editProfileUser({
+        name: constants.nameInput.value,
+        about: constants.jobInput.value,
+      }).then((dataProfileUser) => {
+          constants.profileTitle.textContent = dataProfileUser.name;
+          constants.profileDescription.textContent = dataProfileUser.about;
+          constants.profileAvatar.style.backgroundImage = `url(${dataProfileUser.avatar})`;
+          closeModal(constants.editProfileModal);
+      })
   }
 
-  closeModal(editProfileModal);
+  handleSubmit(makeRequest, event);
+
 }
 
-formEditProfile.addEventListener('submit', handleFormEditProfileSubmit);
+constants.formEditProfile.addEventListener('submit', handleFormEditProfileSubmit);
 
-async function handleFormEditAvatarSubmit(event) {
-  event.preventDefault();
 
-  try {
-    const editAvatarData = await api.editProfileAvatar({
-      avatar: linkAvatarInput.value
-    });
-    
-    profileAvatar.style.backgroundImage = `url(${editAvatarData.avatar})`;
-
-  } catch (error) {
-    console.log(`Текст ошибки: "${error.message}"`);
+function handleFormEditAvatarSubmit(event) {
+  function makeRequest() {
+    return api.editProfileAvatar({
+        avatar: constants.linkAvatarInput.value
+      }).then((dataProfileAvatar) => {
+        constants.profileAvatar.style.backgroundImage = `url(${dataProfileAvatar.avatar})`;
+        closeModal(constants.editAvatarModal);
+      });
   }
 
-  closeModal(editAvatarModal);
+  handleSubmit(makeRequest, event);
+
 }
 
-formEditAvatar.addEventListener('submit', handleFormEditAvatarSubmit);
+constants.formEditAvatar.addEventListener('submit', handleFormEditAvatarSubmit);
 
-async function handleFormAddCardSubmit (event) {
-  event.preventDefault();
-  
-  try {
-    const addCardData = await api.addCard({
-      name: nameNewPlace.value, 
-      link:  linkNewPlace.value
-    });
 
-    addCardsToPage({
-      card: {
-        ...addCardData,
-      }, 
-      position: "prepend",
-      myId: profile.id
-    });
-
-  } catch (error) {
-    console.log(`Текст ошибки: "${error.message}"`);
+function handleFormAddCardSubmit (event) {
+  function makeRequest() {
+    return api.addCard({
+        name: constants.nameNewPlace.value, 
+        link: constants.linkNewPlace.value
+      }).then((dataCard) => {
+        renderCard(dataCard, 'prepend');
+        closeModal(constants.addCardModal);
+      })
   }
 
-  closeModal(addCardModal);
- 
+  handleSubmit(makeRequest, event);
+
 }
 
-formCard.addEventListener('submit', (event) => {
-  handleFormAddCardSubmit(event);
-  formCard.reset();
-});
+constants.formCard.addEventListener('submit', handleFormAddCardSubmit);
 
 enableValidation({
   formSelector: '.popup__form',
-  inputSelector: '.popup__input',
-  submitButtonSelector: '.popup__button',
-  inactiveButtonClass: 'popup__button_disabled',
-  inputErrorClass: 'popup__input_type_error',
-  errorClass: 'popup__error_visible'
+  ...constants.validationConfig,
 });
 
 fetchData();

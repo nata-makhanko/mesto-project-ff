@@ -1,5 +1,9 @@
 const errorRequeredMessage = 'Вы пропустили это поле.';
 
+function disableButton(submitButton, isDisabled) {
+  submitButton.disabled = isDisabled;
+}
+
 const showInputError = ({formElement, inputElement, errorMessage, inputErrorClass, errorClass}) => {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
 
@@ -21,10 +25,10 @@ const hasInvalidInput = (inputList) => inputList.some(input => !input.validity.v
 const toggleButtonState = (inputList, buttonSubmit, inactiveButtonClass) => {
   if(hasInvalidInput(inputList)) {
     buttonSubmit.classList.add(inactiveButtonClass);
-    buttonSubmit.disabled = true;
+    disableButton(buttonSubmit, true);
   } else {
-    buttonSubmit.disabled = false;
     buttonSubmit.classList.remove(inactiveButtonClass);
+    disableButton(buttonSubmit, false);
   }
 }
 
@@ -53,6 +57,10 @@ const setEventListeners = ({formElement, inputSelector, inputErrorClass, errorCl
   const buttonSubmit = formElement.querySelector(submitButtonSelector);
 
   toggleButtonState(inputList, buttonSubmit, inactiveButtonClass);
+
+  formElement.addEventListener('reset', () => {
+    disableButton(buttonSubmit, true);
+  });
 
   inputList.forEach((inputElement) => {
     inputElement.addEventListener('input', () => {

@@ -1,4 +1,5 @@
 import * as api from './api';
+import {profile} from '../utils/constants';
 
 export async function deleteCard(id) {
   try {
@@ -11,7 +12,7 @@ export async function deleteCard(id) {
   }
 }
 
-export async function toggleLikeCard({buttonElem, countElem, isCardHasMyLike, cardId, likes, openImageModal, deleteCard, myId}) {
+export async function toggleLikeCard({buttonElem, countElem, isCardHasMyLike, cardId, openImageModal, deleteCard}) {
   let card;
 
   try {
@@ -23,7 +24,7 @@ export async function toggleLikeCard({buttonElem, countElem, isCardHasMyLike, ca
 
     if(card) {
       changeStateLikeButton({buttonElem, countElem, isCardHasMyLike: !isCardHasMyLike, count: card.likes.length});
-      updateCard({card, openImageModal, deleteCard, myId, likeCard: toggleLikeCard});
+      updateCard({card, openImageModal, deleteCard, likeCard: toggleLikeCard});
     }
 
   } catch (error) {
@@ -43,13 +44,11 @@ export function changeStateLikeButton ({buttonElem, countElem, isCardHasMyLike, 
  
 }
 
-export function updateCard ({card, openImageModal, deleteCard, myId, likeCard}) {
-  const updatedCardElement = createCard({
-    card,
+export function updateCard ({card, openImageModal, deleteCard, likeCard}) {
+  const updatedCardElement = createCard(card, {
     openImageModal,
     deleteCard,
-    likeCard,
-    myId
+    likeCard
   });
   
   // Находим старую карточку и заменяем ее на обновленную
@@ -58,13 +57,16 @@ export function updateCard ({card, openImageModal, deleteCard, myId, likeCard}) 
 
 }
 
-export const createCard = ({card, openImageModal, deleteCard, likeCard, myId}) => {
+export const createCard = (card, {openImageModal, deleteCard, likeCard}) => {
+  const myId = profile.id;
   const cardTemplate = document.querySelector('#card-template').content;
   const cardElement = cardTemplate.querySelector('.places__item').cloneNode(true);
   cardElement.setAttribute('data-id', card._id);
 
-  cardElement.querySelector('.card__image').src = card.link;
-  cardElement.querySelector('.card__image').alt = card.name;
+  const cardImage = cardElement.querySelector('.card__image');
+  cardImage.src = card.link;
+  cardImage.alt = card.name;
+
   cardElement.querySelector('.card__title').textContent = card.name;
   
   const deleteButton = cardElement.querySelector('.card__delete-button');
@@ -89,7 +91,7 @@ export const createCard = ({card, openImageModal, deleteCard, likeCard, myId}) =
     }
 
     if(target.classList.contains('card__like-button')) {
-      likeCard({buttonElem: buttonLikeElem, countElem: countLikeElem, isCardHasMyLike, cardId: card._id, likes: card.likes, deleteCard, myId, openImageModal});
+      likeCard({buttonElem: buttonLikeElem, countElem: countLikeElem, isCardHasMyLike, cardId: card._id, deleteCard, openImageModal});
       return;
     }
 
