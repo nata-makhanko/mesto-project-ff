@@ -16,7 +16,7 @@ export function handleSubmit(request, event, loadingText = "Сохранение
     
     request()
         .then(() => {
-            evt.target.reset();
+            event.target.reset();
         })
         .catch((error) => {
             console.error(`Текст ошибки: "${error.message}"`);
